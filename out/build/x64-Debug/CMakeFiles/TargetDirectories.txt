@@ -1,0 +1,3 @@
+P:/workspace_backend/UNI Proseminar/Trees/out/build/x64-Debug/CMakeFiles/Trees.dir
+P:/workspace_backend/UNI Proseminar/Trees/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+P:/workspace_backend/UNI Proseminar/Trees/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
