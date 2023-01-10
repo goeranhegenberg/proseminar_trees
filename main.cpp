@@ -104,33 +104,92 @@ void test2() {
     //testIntervalTree();
 }*/
 
-static void BM_BTree(benchmark::State& state) {
+static BTree<int> BTree_Insert() {
+    BTree<int> bpt(15);
+
+    for(int i = 0; i < 100; i++){
+        bpt.insert(i * 13 + 87);
+    }
+
+    return bpt;
+}
+
+static BPlusTree<int> BPlusTree_Insert() {
+    BPlusTree<int> bpt(15);
+
+    for(int i = 0; i < 100; i++){
+        bpt.insert(i * 13 + 87);
+    }
+
+    return bpt;
+}
+
+static void BM_BTree_Insert(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        BTree<int> bpt(15);
+        BTree_Insert();
+    }
+}
 
-        for(int i = 0; i < 100; i++){
-            bpt.insert(i * 13 + 87);
+static void BM_BPlusTree_Insert(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        BPlusTree_Insert();
+    }
+}
+
+static BTree<int> btree = BTree_Insert();
+static BPlusTree<int> bplustree = BPlusTree_Insert();
+
+static void BM_BTree_Search(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < 100; i++) {
+            btree.search(i * 13 + 87);
         }
     }
 }
 
-static void BM_SomeFunction2(benchmark::State& state) {
+static void BM_BPlusTree_Search(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        BPlusTree<int> bpt(15);
+        for(int i = 0; i < 100; i++) {
+            bplustree.search(i * 13 + 87);
+        }
+    }
+}
 
-        for(int i = 0; i < 100; i++){
-            bpt.insert(i * 13 + 87);
+static void BM_BTree_SearchNF(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < 100; i++) {
+            btree.search(i * 13 + 88);
+        }
+    }
+}
+
+static void BM_BPlusTree_SearchNF(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < 100; i++) {
+            bplustree.search(i * 13 + 88);
         }
     }
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_BTree);
-BENCHMARK(BM_SomeFunction2);
+BENCHMARK(BM_BTree_Insert);
+BENCHMARK(BM_BPlusTree_Insert);
+BENCHMARK(BM_BTree_Search);
+BENCHMARK(BM_BPlusTree_Search);
+BENCHMARK(BM_BTree_SearchNF);
+BENCHMARK(BM_BPlusTree_SearchNF);
 
 // Run the benchmark
 BENCHMARK_MAIN();

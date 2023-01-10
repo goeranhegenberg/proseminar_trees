@@ -98,6 +98,19 @@ public:
             children[j - 1] = children[j];
     }
 
+    // Search key recursively
+    int search(T key)
+    {
+        int i = 0;
+        while (i < count && key > keys[i])
+            i++;
+        if (keys[i] == key)
+            return i;
+        if (isLeaf())
+            return -1;
+        return children[i]->search(key);
+    }
+
     // Getters
     T getKey(int i) { return keys[i]; }
     Node* getChild(int i) { return children[i]; }
