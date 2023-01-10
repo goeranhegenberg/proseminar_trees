@@ -3,5 +3,7 @@ project(Trees)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(include)
 add_executable(Trees main.cpp)
+
+add_subdirectory(benchmark-main)
+target_link_libraries(Trees benchmark::benchmark)

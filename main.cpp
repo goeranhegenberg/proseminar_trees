@@ -1,7 +1,13 @@
 #include <iostream>
-#include <celero/Celero.h>
+//#include <interval-tree/interval_tree.hpp>
+#include <benchmark/benchmark.h>
 #include "BTree.h"
+#include "BPlusTree.h"
 #include "RTree.h"
+#ifndef _WIN32
+#include <cmath>
+#include <cstdlib>
+#endif
 
 void print_bool(bool cond) {
     if (cond) {
@@ -62,18 +68,69 @@ void test2() {
     for(int i=1; i<136; i++){
         float min[3] = {0,0,0};
         float max[3] = {100,100,100};
-        float value[3] = {i*13+87, i*37-28, i*19+43};
+        float value[3] = {(float) i*13+87, (float) i*37-28, (float) i*19+43};
         bpt.Insert(min,max,value);
         std::cout<<i*13+87<<' ';
 
     }
 }
 
-int main() {
-    test1();
+/*void testIntervalTree() {
+    using namespace lib_interval_tree;
+
+    // interval_tree <interval <int>>;
+    interval_tree_t <int> tree;
+
+    tree.insert(make_safe_interval<int>(21, 16)); // make_safe_interval swaps low and high if not in right order.
+    tree.insert({8, 9});
+    tree.insert({25, 30});
+    tree.insert({5, 8});
+    tree.insert({15, 23});
+    tree.insert({17, 19});
+    tree.insert({26, 26});
+    tree.insert({0, 3});
+    tree.insert({6, 10});
+    tree.insert({19, 20});
+
+    tree.deoverlap();
+
+    for (auto const& i : tree)
+    {
+        std::cout << "[" << i.low() << ", " << i.high() << "]\n";
+    }
+}*/
+
+/*int main() {
+    //testIntervalTree();
+}*/
+
+static void BM_BTree(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        BTree<int> bpt(15);
+
+        for(int i = 0; i < 100; i++){
+            bpt.insert(i * 13 + 87);
+        }
+    }
 }
 
-BASELINE(DemoSimple, Baseline, 10, 1000000)
-{
-    celero::DoNotOptimizeAway(static_cast<float>(sin(UniformDistribution(RandomDevice))));
+static void BM_SomeFunction2(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        BPlusTree<int> bpt(15);
+
+        for(int i = 0; i < 100; i++){
+            bpt.insert(i * 13 + 87);
+        }
+    }
 }
+
+// Register the function as a benchmark
+BENCHMARK(BM_BTree);
+BENCHMARK(BM_SomeFunction2);
+
+// Run the benchmark
+BENCHMARK_MAIN();

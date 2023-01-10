@@ -4,16 +4,15 @@
 #include <iostream>
 
 template <typename T>
-struct Node {
-    bool is_leaf;
+class BPlusNode {
+public:
     std::size_t degree; // maximum number of children
     std::size_t size; // current number of item
     T* item;
-    Node<T>** children;
-    Node<T>* parent;
-
-public:
-    Node(std::size_t _degree) {// Constructor
+    BPlusNode<T>** children;
+    BPlusNode<T>* parent;
+    bool is_leaf;
+    BPlusNode(std::size_t _degree) {// Constructor
         this->is_leaf = false;
         this->degree = _degree;
         this->size = 0;
@@ -24,7 +23,7 @@ public:
         }
         this->item = _item;
 
-        Node<T>** _children = new Node<T>*[degree];
+        BPlusNode<T>** _children = new BPlusNode<T>*[degree];
         for(int i=0; i<degree; i++){
             _children[i] = nullptr;
         }
@@ -37,7 +36,7 @@ public:
 
 template <typename T>
 class BPlusTree {
-    Node<T>* root;
+    BPlusNode<T>* root;
     std::size_t degree;
 
 public:
@@ -49,19 +48,19 @@ public:
         clear(this->root);
     }
 
-    Node<T>* getroot(){
+    BPlusNode<T>* getroot(){
         return this->root;
     }
 
-    Node<T>* BPlusTreeSearch(Node<T>* node, T key){
-        if(node == nullptr) { // if root is null, return nullptr
+    BPlusNode<T>* BPlusTreeSearch(BPlusNode<T>* bPlusNode, T key){
+        if(bPlusNode == nullptr) { // if root is null, return nullptr
             return nullptr;
         }
         else{
-            Node<T>* cursor = node; // cursor finding key
+            BPlusNode<T>* cursor = bPlusNode; // cursor finding key
 
             while(!cursor->is_leaf){ // until cusor pointer arrive leaf
-                for(int i=0; i<cursor->size; i++){ //in this index node, find what we want key
+                for(int i=0; i<cursor->size; i++){ //in this index BPlusNode, find what we want key
                     if(key < cursor->item[i]){ //find some range, and let find their child also.
                         cursor = cursor->children[i];
                         break;
@@ -73,7 +72,7 @@ public:
                 }
             }
 
-            //search for the key if it exists in leaf node.
+            //search for the key if it exists in leaf BPlusNode.
             for(int i=0; i<cursor->size; i++){
                 if(cursor->item[i] == key){
                     return cursor;
@@ -83,15 +82,15 @@ public:
             return nullptr;
         }
     }
-    Node<T>* BPlusTreeRangeSearch(Node<T>* node, T key){
-        if(node == nullptr) { // if root is null, return nullptr
+    BPlusNode<T>* BPlusTreeRangeSearch(BPlusNode<T>* bPlusNode, T key){
+        if(bPlusNode == nullptr) { // if root is null, return nullptr
             return nullptr;
         }
         else{
-            Node<T>* cursor = node; // cursor finding key
+            BPlusNode<T>* cursor = bPlusNode; // cursor finding key
 
             while(!cursor->is_leaf){ // until cusor pointer arrive leaf
-                for(int i=0; i<cursor->size; i++){ //in this index node, find what we want key
+                for(int i=0; i<cursor->size; i++){ //in this index BPlusNode, find what we want key
                     if(key < cursor->item[i]){ //find some range, and let find their child also.
                         cursor = cursor->children[i];
                         break;
@@ -108,8 +107,8 @@ public:
     int range_search(T start, T end, T* result_data, int arr_length) {
         int index=0;
 
-        Node<T>* start_node = BPlusTreeRangeSearch(this->root,start);
-        Node<T>* cursor = start_node;
+        BPlusNode<T>* start_BPlusNode = BPlusTreeRangeSearch(this->root,start);
+        BPlusNode<T>* cursor = start_BPlusNode;
         T temp= cursor->item[0];
 
         while(temp<=end){
@@ -166,52 +165,52 @@ public:
 
         return arr;
     }
-    Node<T>** child_insert(Node<T>** child_arr, Node<T>*child,int len,int index){
+    BPlusNode<T>** child_insert(BPlusNode<T>** child_arr, BPlusNode<T>*child,int len,int index){
         for(int i= len; i > index; i--){
             child_arr[i] = child_arr[i - 1];
         }
         child_arr[index] = child;
         return child_arr;
     }
-    Node<T>* child_item_insert(Node<T>* node, T data, Node<T>* child){
+    BPlusNode<T>* child_item_insert(BPlusNode<T>* bPlusNode, T data, BPlusNode<T>* child){
         int item_index=0;
         int child_index=0;
-        for(int i=0; i< node->size; i++){
-            if(data < node->item[i]){
+        for(int i=0; i< bPlusNode->size; i++){
+            if(data < bPlusNode->item[i]){
                 item_index = i;
                 child_index = i+1;
                 break;
             }
-            if(i==node->size-1){
-                item_index = node->size;
-                child_index = node->size+1;
+            if(i==bPlusNode->size-1){
+                item_index = bPlusNode->size;
+                child_index = bPlusNode->size+1;
                 break;
             }
         }
-        for(int i = node->size;i > item_index; i--){
-            node->item[i] = node->item[i-1];
+        for(int i = bPlusNode->size;i > item_index; i--){
+            bPlusNode->item[i] = bPlusNode->item[i-1];
         }
-        for(int i=node->size+1;i>child_index;i--){
-            node->children[i] = node->children[i-1];
+        for(int i=bPlusNode->size+1;i>child_index;i--){
+            bPlusNode->children[i] = bPlusNode->children[i-1];
         }
 
-        node->item[item_index] = data;
-        node->children[child_index] = child;
+        bPlusNode->item[item_index] = data;
+        bPlusNode->children[child_index] = child;
 
-        return node;
+        return bPlusNode;
     }
-    void InsertPar(Node<T>* par,Node<T>* child, T data){
+    void InsertPar(BPlusNode<T>* par,BPlusNode<T>* child, T data){
         //overflow check
-        Node<T>* cursor = par;
+        BPlusNode<T>* cursor = par;
         if(cursor->size < this->degree-1){//not overflow, just insert in the correct position
             //insert item, child, and reallocate
             cursor = child_item_insert(cursor,data,child);
             cursor->size++;
         }
         else{//overflow
-            //make new node
-            auto* Newnode = new Node<T>(this->degree);
-            Newnode->parent = cursor->parent;
+            //make new BPlusNode
+            auto* NewBPlusNode = new BPlusNode<T>(this->degree);
+            NewBPlusNode->parent = cursor->parent;
 
             //copy item
             T* item_copy = new T[cursor->size+1];
@@ -220,20 +219,20 @@ public:
             }
             item_copy = item_insert(item_copy,data,cursor->size);
 
-            auto** child_copy = new Node<T>*[cursor->size+2];
+            auto** child_copy = new BPlusNode<T>*[cursor->size+2];
             for(int i=0; i<cursor->size+1;i++){
                 child_copy[i] = cursor->children[i];
             }
             child_copy[cursor->size+1] = nullptr;
             child_copy = child_insert(child_copy,child,cursor->size+1,find_index(item_copy,data,cursor->size+1));
 
-            //split nodes
+            //split BPlusNodes
             cursor->size = (this->degree)/2;
             if((this->degree) % 2 == 0){
-                Newnode->size = (this->degree) / 2 -1;
+                NewBPlusNode->size = (this->degree) / 2 -1;
             }
             else{
-                Newnode->size = (this->degree) / 2;
+                NewBPlusNode->size = (this->degree) / 2;
             }
 
             for(int i=0; i<cursor->size;i++){
@@ -243,13 +242,13 @@ public:
             cursor->children[cursor->size] = child_copy[cursor->size];
             //todo 안지워짐. 뒤에것.
 
-            for(int i=0; i < Newnode->size; i++){
-                Newnode->item[i] = item_copy[cursor->size + i +1];
-                Newnode->children[i] = child_copy[cursor->size+i+1];
-                Newnode->children[i]->parent=Newnode;
+            for(int i=0; i < NewBPlusNode->size; i++){
+                NewBPlusNode->item[i] = item_copy[cursor->size + i +1];
+                NewBPlusNode->children[i] = child_copy[cursor->size+i+1];
+                NewBPlusNode->children[i]->parent=NewBPlusNode;
             }
-            Newnode->children[Newnode->size] = child_copy[cursor->size+Newnode->size+1];
-            Newnode->children[Newnode->size]->parent=Newnode;
+            NewBPlusNode->children[NewBPlusNode->size] = child_copy[cursor->size+NewBPlusNode->size+1];
+            NewBPlusNode->children[NewBPlusNode->size]->parent=NewBPlusNode;
 
             T paritem = item_copy[this->degree/2];
 
@@ -257,37 +256,37 @@ public:
             delete[] child_copy;
 
             //parent check
-            if(cursor->parent == nullptr){//if there are no parent node(root case)
-                auto* Newparent = new Node<T>(this->degree);
+            if(cursor->parent == nullptr){//if there are no parent BPlusNode(root case)
+                auto* Newparent = new BPlusNode<T>(this->degree);
                 cursor->parent = Newparent;
-                Newnode->parent = Newparent;
+                NewBPlusNode->parent = Newparent;
 
                 Newparent->item[0] = paritem;
                 Newparent->size++;
 
                 Newparent->children[0] = cursor;
-                Newparent->children[1] = Newnode;
+                Newparent->children[1] = NewBPlusNode;
 
                 this->root = Newparent;
 
                 //delete Newparent;
             }
-            else{//if there already have parent node
-                InsertPar(cursor->parent, Newnode, paritem);
+            else{//if there already have parent BPlusNode
+                InsertPar(cursor->parent, NewBPlusNode, paritem);
             }
         }
     }
     void insert(T data) {
         if(this->root == nullptr){ //if the tree is empty
-            this->root = new Node<T>(this->degree);
+            this->root = new BPlusNode<T>(this->degree);
             this->root->is_leaf = true;
             this->root->item[0] = data;
             this->root->size = 1; //
         }
-        else{ //if the tree has at least one node
-            Node<T>* cursor = this->root;
+        else{ //if the tree has at least one BPlusNode
+            BPlusNode<T>* cursor = this->root;
 
-            //move to leaf node
+            //move to leaf BPlusNode
             cursor = BPlusTreeRangeSearch(cursor, data);
 
             //overflow check
@@ -295,15 +294,15 @@ public:
                 //item insert and rearrange
                 cursor->item = item_insert(cursor->item,data,cursor->size);
                 cursor->size++;
-                //edit pointer(next node)
+                //edit pointer(next BPlusNode)
                 cursor->children[cursor->size] = cursor->children[cursor->size-1];
                 cursor->children[cursor->size-1] = nullptr;
             }
             else{//overflow case
-                //make new node
-                auto* Newnode = new Node<T>(this->degree);
-                Newnode->is_leaf = true;
-                Newnode->parent = cursor->parent;
+                //make new BPlusNode
+                auto* NewBPlusNode = new BPlusNode<T>(this->degree);
+                NewBPlusNode->is_leaf = true;
+                NewBPlusNode->parent = cursor->parent;
 
                 //copy item
                 T* item_copy = new T[cursor->size+1];
@@ -314,46 +313,46 @@ public:
                 //insert and rearrange
                 item_copy = item_insert(item_copy,data,cursor->size);
 
-                //split nodes
+                //split BPlusNodes
                 cursor->size = (this->degree)/2;
                 if((this->degree) % 2 == 0){
-                    Newnode->size = (this->degree) / 2;
+                    NewBPlusNode->size = (this->degree) / 2;
                 }
                 else{
-                    Newnode->size = (this->degree) / 2 + 1;
+                    NewBPlusNode->size = (this->degree) / 2 + 1;
                 }
 
                 for(int i=0; i<cursor->size;i++){
                     cursor->item[i] = item_copy[i];
                 }
-                for(int i=0; i < Newnode->size; i++){
-                    Newnode->item[i] = item_copy[cursor->size + i];
+                for(int i=0; i < NewBPlusNode->size; i++){
+                    NewBPlusNode->item[i] = item_copy[cursor->size + i];
                 }
 
-                cursor->children[cursor->size] = Newnode;
-                Newnode->children[Newnode->size] = cursor->children[this->degree-1];
+                cursor->children[cursor->size] = NewBPlusNode;
+                NewBPlusNode->children[NewBPlusNode->size] = cursor->children[this->degree-1];
                 cursor->children[this->degree-1] = nullptr;
 
                 delete[] item_copy;
 
                 //parent check
-                T paritem = Newnode->item[0];
+                T paritem = NewBPlusNode->item[0];
 
-                if(cursor->parent == nullptr){//if there are no parent node(root case)
-                    auto* Newparent = new Node<T>(this->degree);
+                if(cursor->parent == nullptr){//if there are no parent BPlusNode(root case)
+                    auto* Newparent = new BPlusNode<T>(this->degree);
                     cursor->parent = Newparent;
-                    Newnode->parent = Newparent;
+                    NewBPlusNode->parent = Newparent;
 
                     Newparent->item[0] = paritem;
                     Newparent->size++;
 
                     Newparent->children[0] = cursor;
-                    Newparent->children[1] = Newnode;
+                    Newparent->children[1] = NewBPlusNode;
 
                     this->root = Newparent;
                 }
-                else{//if there already have parent node
-                    InsertPar(cursor->parent, Newnode, paritem);
+                else{//if there already have parent BPlusNode
+                    InsertPar(cursor->parent, NewBPlusNode, paritem);
                 }
             }
         }
@@ -361,9 +360,9 @@ public:
 
     void remove(T data) { // Remove an item from the tree.
         //make cursor
-        Node<T>* cursor = this->root;
+        BPlusNode<T>* cursor = this->root;
 
-        //move to leaf node
+        //move to leaf BPlusNode
         cursor = BPlusTreeRangeSearch(cursor,data);
 
         //make sibling index
@@ -414,9 +413,9 @@ public:
         if(cursor->size < degree/2){//underflow case
 
             if(left >= 0){// left_sibiling exists
-                Node<T>* leftsibling= cursor->parent->children[left];
+                BPlusNode<T>* leftsibling= cursor->parent->children[left];
 
-                if(leftsibling->size > degree/2){ //if data number is enough to use this node
+                if(leftsibling->size > degree/2){ //if data number is enough to use this BPlusNode
                     T* temp = new T[cursor->size+1];
 
                     //copy item
@@ -449,9 +448,9 @@ public:
                 }
             }
             if(right <= cursor->parent->size){// right_sibiling exists
-                Node<T>* rightsibling = cursor->parent->children[right];
+                BPlusNode<T>* rightsibling = cursor->parent->children[right];
 
-                if(rightsibling->size >degree/2){//if data number is enough to use this node
+                if(rightsibling->size >degree/2){//if data number is enough to use this BPlusNode
                     T* temp = new T[cursor->size+1];
 
                     //copy item
@@ -490,9 +489,9 @@ public:
             //we have to merge step
 
             if(left>=0){ // left_sibling exists
-                Node<T>* leftsibling = cursor->parent->children[left];
+                BPlusNode<T>* leftsibling = cursor->parent->children[left];
 
-                //merge two leaf node
+                //merge two leaf BPlusNode
                 for(int i=0; i<cursor->size; i++){
                     leftsibling->item[leftsibling->size+i]=cursor->item[i];
                 }
@@ -517,9 +516,9 @@ public:
 
             }
             if(right<=cursor->parent->size){ // right_sibiling exists
-                Node<T>* rightsibling = cursor->parent->children[right];
+                BPlusNode<T>* rightsibling = cursor->parent->children[right];
 
-                //merge two leaf node
+                //merge two leaf BPlusNode
                 for(int i=0; i<rightsibling->size; i++){
                     cursor->item[i+cursor->size]=rightsibling->item[i];
                 }
@@ -550,12 +549,12 @@ public:
         }
     }
 
-    void Removepar(Node<T>* node, int index, Node<T>* par){
-        Node<T>* remover = node;
-        Node<T>* cursor = par;
+    void Removepar(BPlusNode<T>* bPlusNode, int index, BPlusNode<T>* par){
+        BPlusNode<T>* remover = bPlusNode;
+        BPlusNode<T>* cursor = par;
         T target = cursor->item[index];
 
-        //if cursor is root, and there are no more data -> child node is to be root!
+        //if cursor is root, and there are no more data -> child BPlusNode is to be root!
         if(cursor == this->root && cursor->size==1){//root case
             if(remover == cursor->children[0]){
                 delete[] remover->item;
@@ -617,9 +616,9 @@ public:
             int right=sib_index+1;
 
             if(left >= 0){// left_sibiling exists
-                Node<T>* leftsibling= cursor->parent->children[left];
+                BPlusNode<T>* leftsibling= cursor->parent->children[left];
 
-                if(leftsibling->size > degree/2){ //if data number is enough to use this node
+                if(leftsibling->size > degree/2){ //if data number is enough to use this BPlusNode
                     T* temp = new T[cursor->size+1];
 
                     //copy item
@@ -635,8 +634,8 @@ public:
                     cursor->parent->item[left] = leftsibling->item[leftsibling->size-1];
                     delete[] temp;
 
-                    Node<T>** child_temp = new Node<T>*[cursor->size+2];
-                    //copy child node
+                    BPlusNode<T>** child_temp = new BPlusNode<T>*[cursor->size+2];
+                    //copy child BPlusNode
                     for(int i=0; i<cursor->size+1; i++){
                         child_temp[i]=cursor->children[i];
                     }
@@ -657,9 +656,9 @@ public:
             }
 
             if(right <= cursor->parent->size){// right_sibiling exists
-                Node<T>* rightsibling = cursor->parent->children[right];
+                BPlusNode<T>* rightsibling = cursor->parent->children[right];
 
-                if(rightsibling->size > degree/2){//if data number is enough to use this node
+                if(rightsibling->size > degree/2){//if data number is enough to use this BPlusNode
                     T* temp = new T[cursor->size+1];
 
                     //copy item
@@ -692,10 +691,10 @@ public:
             //if sibling is not enought to use their data
             //we have to merge step
             if(left>=0){ // left_sibling exists
-                Node<T>* leftsibling = cursor->parent->children[left];
+                BPlusNode<T>* leftsibling = cursor->parent->children[left];
 
                 leftsibling->item[leftsibling->size] = cursor->parent->item[left];
-                //merge two leaf node
+                //merge two leaf BPlusNode
                 for(int i=0; i<cursor->size; i++){
                     leftsibling->item[leftsibling->size+i+1]=cursor->item[i];
                 }
@@ -713,10 +712,10 @@ public:
 
             }
             if(right<=cursor->parent->size){ // right_sibiling exists
-                Node<T>* rightsibling = cursor->parent->children[right];
+                BPlusNode<T>* rightsibling = cursor->parent->children[right];
 
                 cursor->item[cursor->size] = cursor->parent->item[right-1];
-                //merge two leaf node
+                //merge two leaf BPlusNode
                 for(int i=0; i<rightsibling->size; i++){
                     cursor->item[cursor->size+1+i]=rightsibling->item[i];
                 }
@@ -739,7 +738,7 @@ public:
         }
     }
 
-    void clear(Node<T>* cursor){
+    void clear(BPlusNode<T>* cursor){
         if(cursor != nullptr){
             if(!cursor->is_leaf){
                 for(int i=0; i <= cursor->size; i++){
@@ -754,7 +753,7 @@ public:
     void print(){
         print(this->root);
     }
-    void print(Node<T>* cursor) {
+    void print(BPlusNode<T>* cursor) {
         // You must NOT edit this function.
         if (cursor != NULL) {
             for (int i = 0; i < cursor->size; ++i) {
