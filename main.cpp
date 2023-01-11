@@ -104,10 +104,12 @@ void test2() {
     //testIntervalTree();
 }*/
 
+static int steps = 100000;
+
 static BTree<int> BTree_Insert() {
     BTree<int> bpt(15);
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < steps; i++){
         bpt.insert(i * 13 + 87);
     }
 
@@ -117,7 +119,7 @@ static BTree<int> BTree_Insert() {
 static BPlusTree<int> BPlusTree_Insert() {
     BPlusTree<int> bpt(15);
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < steps; i++){
         bpt.insert(i * 13 + 87);
     }
 
@@ -147,7 +149,7 @@ static void BM_BTree_Search(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < steps; i++) {
             btree.search(i * 13 + 87);
         }
     }
@@ -157,7 +159,7 @@ static void BM_BPlusTree_Search(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < steps; i++) {
             bplustree.search(i * 13 + 87);
         }
     }
@@ -167,7 +169,7 @@ static void BM_BTree_SearchNF(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < steps; i++) {
             btree.search(i * 13 + 88);
         }
     }
@@ -177,7 +179,7 @@ static void BM_BPlusTree_SearchNF(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < steps; i++) {
             bplustree.search(i * 13 + 88);
         }
     }
@@ -188,8 +190,8 @@ BENCHMARK(BM_BTree_Insert);
 BENCHMARK(BM_BPlusTree_Insert);
 BENCHMARK(BM_BTree_Search);
 BENCHMARK(BM_BPlusTree_Search);
-BENCHMARK(BM_BTree_SearchNF);
-BENCHMARK(BM_BPlusTree_SearchNF);
+//BENCHMARK(BM_BTree_SearchNF);
+//BENCHMARK(BM_BPlusTree_SearchNF);
 
 // Run the benchmark
 BENCHMARK_MAIN();
