@@ -102,7 +102,7 @@ public:
     int search(T key)
     {
         int i = 0;
-        while (i < count && key > keys[i])
+        while (i < count - 1 && key > keys[i])
             i++;
         if (keys[i] == key)
             return i;

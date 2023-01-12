@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD 14)
 add_executable(Trees main.cpp)
 
 add_subdirectory(benchmark-main)
+include_directories(./include/interval-tree)
 target_link_libraries(Trees benchmark::benchmark)

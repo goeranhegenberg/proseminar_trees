@@ -1,5 +1,5 @@
 #include <iostream>
-//#include <interval-tree/interval_tree.hpp>
+#include <interval_tree.hpp>
 #include <benchmark/benchmark.h>
 #include "BTree.h"
 #include "BPlusTree.h"
@@ -8,6 +8,38 @@
 #include <cmath>
 #include <cstdlib>
 #endif
+
+// bitwise interlacing of x and y
+int z_function(int x, int y)
+{
+    int z = 0;
+    for (int i = 0; i < 32; i++)
+    {
+        z |= (x & 1) << (2 * i);
+        z |= (y & 1) << (2 * i + 1);
+        x >>= 1;
+        y >>= 1;
+    }
+    return z;
+}
+
+// next power of 2
+int next_power_of_two(int x)
+{
+    int y = 1;
+    while (y < x)
+        y *= 2;
+    return y;
+}
+
+// previous power of 2
+int prev_power_of_two(int x)
+{
+    int y = 1;
+    while (y < x)
+        y *= 2;
+    return y / 2;
+}
 
 void print_bool(bool cond) {
     if (cond) {
@@ -75,7 +107,7 @@ void test2() {
     }
 }
 
-/*void testIntervalTree() {
+void testIntervalTree() {
     using namespace lib_interval_tree;
 
     // interval_tree <interval <int>>;
@@ -98,13 +130,24 @@ void test2() {
     {
         std::cout << "[" << i.low() << ", " << i.high() << "]\n";
     }
-}*/
+}
 
-/*int main() {
-    //testIntervalTree();
-}*/
+int main() {
+    // print z function for (1,1)
+    for(int i = 0; i < 5; i++) {
+        for(int j = 0; j < 5; j++) {
+            std::cout << "z(" << i << "," << j << ") = " << z_function(i, j) << std::endl;
+        }
+    }
 
-static int steps = 100000;
+    // print next power of 2
+    for(int i = 0; i < 10; i++) {
+        std::cout << "next_power_of_two(" << i << ") = " << next_power_of_two(i) <<
+        " | prev_power_of_two(" << i << ") = " << prev_power_of_two(i) << std::endl;
+    }
+}
+
+static int steps = 1000;
 
 static BTree<int> BTree_Insert() {
     BTree<int> bpt(15);
@@ -126,31 +169,63 @@ static BPlusTree<int> BPlusTree_Insert() {
     return bpt;
 }
 
+static lib_interval_tree::interval_tree_t<int> IntervalTree_Insert() {
+    lib_interval_tree::interval_tree_t<int> bpt;
+
+    for(int i = 0; i < steps; i++){
+        bpt.insert({i * 13 + 87, i * 14 + 88});
+    }
+
+    return bpt;
+}
+
+static RTree<int*, int, 2> RTree_Insert() {
+    RTree<int*, int, 2> bpt;
+
+    for(int i = 0; i < steps; i++){
+        int min[2] = {i * 13 + 87,i * 13 + 87};
+        int max[2] = {i * 14 + 88,i * 14 + 88};
+        bpt.Insert(min,max,0);
+    }
+
+    return bpt;
+}
+
 static void BM_BTree_Insert(benchmark::State& state) {
-    // Perform setup here
     for (auto _ : state) {
-        // This code gets timed
         BTree_Insert();
     }
 }
 
 static void BM_BPlusTree_Insert(benchmark::State& state) {
-    // Perform setup here
     for (auto _ : state) {
-        // This code gets timed
         BPlusTree_Insert();
     }
 }
 
-static BTree<int> btree = BTree_Insert();
+static void BM_IntervalTree_Insert(benchmark::State& state) {
+    for (auto _ : state) {
+        IntervalTree_Insert();
+    }
+}
+
+static void BM_RTree_Insert(benchmark::State& state) {
+    for (auto _ : state) {
+        RTree_Insert();
+    }
+}
+
+//static BTree<int> btree = BTree_Insert();
 static BPlusTree<int> bplustree = BPlusTree_Insert();
+static lib_interval_tree::interval_tree_t<int> intervaltree = IntervalTree_Insert();
+static RTree<int*, int, 2> rtree = RTree_Insert();
 
 static void BM_BTree_Search(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
         for(int i = 0; i < steps; i++) {
-            btree.search(i * 13 + 87);
+            //btree.search(i * 13 + 87);
         }
     }
 }
@@ -165,12 +240,34 @@ static void BM_BPlusTree_Search(benchmark::State& state) {
     }
 }
 
+static void BM_IntervalTree_Search(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < steps; i++) {
+            intervaltree.find({i * 13 + 88, i * 13 + 88 + 13 * 3});
+        }
+    }
+}
+
+static void BM_RTree_Search(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < steps; i++) {
+            int min[2] = {i * 13 + 88,i * 13 + 88};
+            int max[2] = {i * 13 + 88 + 13 * 3,i * 13 + 88 + 13 * 3};
+            rtree.Search(min,max, {});
+        }
+    }
+}
+
 static void BM_BTree_SearchNF(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
         // This code gets timed
         for(int i = 0; i < steps; i++) {
-            btree.search(i * 13 + 88);
+            //btree.search(i * 13 + 88);
         }
     }
 }
@@ -185,13 +282,35 @@ static void BM_BPlusTree_SearchNF(benchmark::State& state) {
     }
 }
 
-// Register the function as a benchmark
-BENCHMARK(BM_BTree_Insert);
+static void BM_IntervalTree_SearchNF(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < steps; i++) {
+            if(i % 2 == 0) {
+                intervaltree.find({0, 1});
+            } else {
+                intervaltree.find({steps * 14 + 300, steps * 14 + 301});
+            }
+        }
+    }
+}
+
+// Benchmark insertions
+//BENCHMARK(BM_BTree_Insert);
 BENCHMARK(BM_BPlusTree_Insert);
-BENCHMARK(BM_BTree_Search);
+BENCHMARK(BM_IntervalTree_Insert);
+BENCHMARK(BM_RTree_Insert);
+
+// Benchmark search
+//BENCHMARK(BM_BTree_Search);
 BENCHMARK(BM_BPlusTree_Search);
+BENCHMARK(BM_IntervalTree_Search);
+BENCHMARK(BM_RTree_Search);
+
 //BENCHMARK(BM_BTree_SearchNF);
-//BENCHMARK(BM_BPlusTree_SearchNF);
+BENCHMARK(BM_BPlusTree_SearchNF);
+BENCHMARK(BM_IntervalTree_SearchNF);
 
 // Run the benchmark
-BENCHMARK_MAIN();
+//BENCHMARK_MAIN();
