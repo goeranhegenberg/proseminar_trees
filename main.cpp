@@ -4,6 +4,8 @@
 #include "BTree.h"
 #include "BPlusTree.h"
 #include "RTree.h"
+#include "UBTree.h"
+
 #ifndef _WIN32
 #include <cmath>
 #include <cstdlib>
@@ -132,7 +134,7 @@ void testIntervalTree() {
     }
 }
 
-int main() {
+/*int main() {
     // print z function for (1,1)
     for(int i = 0; i < 5; i++) {
         for(int j = 0; j < 5; j++) {
@@ -145,7 +147,7 @@ int main() {
         std::cout << "next_power_of_two(" << i << ") = " << next_power_of_two(i) <<
         " | prev_power_of_two(" << i << ") = " << prev_power_of_two(i) << std::endl;
     }
-}
+}*/
 
 static int steps = 1000;
 
@@ -191,6 +193,17 @@ static RTree<int*, int, 2> RTree_Insert() {
     return bpt;
 }
 
+static UBTree<int, 2> UBTree_Insert() {
+    UBTree<int, 2> bpt(15);
+
+    for(int i = 0; i < steps; i++){
+        int value[2] = {i * 13 + 87,i * 13 + 87};
+        bpt.insert(value);
+    }
+
+    return bpt;
+}
+
 static void BM_BTree_Insert(benchmark::State& state) {
     for (auto _ : state) {
         BTree_Insert();
@@ -215,10 +228,17 @@ static void BM_RTree_Insert(benchmark::State& state) {
     }
 }
 
+static void BM_UBTree_Insert(benchmark::State& state) {
+    for (auto _ : state) {
+        UBTree_Insert();
+    }
+}
+
 //static BTree<int> btree = BTree_Insert();
 static BPlusTree<int> bplustree = BPlusTree_Insert();
 static lib_interval_tree::interval_tree_t<int> intervaltree = IntervalTree_Insert();
 static RTree<int*, int, 2> rtree = RTree_Insert();
+static UBTree<int, 2> ubtree = UBTree_Insert();
 
 static void BM_BTree_Search(benchmark::State& state) {
     // Perform setup here
@@ -262,6 +282,17 @@ static void BM_RTree_Search(benchmark::State& state) {
     }
 }
 
+static void BM_UBTree_Search(benchmark::State& state) {
+    // Perform setup here
+    for (auto _ : state) {
+        // This code gets timed
+        for(int i = 0; i < steps; i++) {
+            int value[2] = {i * 13 + 87,i * 13 + 87};
+            ubtree.search(value);
+        }
+    }
+}
+
 static void BM_BTree_SearchNF(benchmark::State& state) {
     // Perform setup here
     for (auto _ : state) {
@@ -301,16 +332,18 @@ static void BM_IntervalTree_SearchNF(benchmark::State& state) {
 BENCHMARK(BM_BPlusTree_Insert);
 BENCHMARK(BM_IntervalTree_Insert);
 BENCHMARK(BM_RTree_Insert);
+BENCHMARK(BM_UBTree_Insert);
 
 // Benchmark search
 //BENCHMARK(BM_BTree_Search);
 BENCHMARK(BM_BPlusTree_Search);
 BENCHMARK(BM_IntervalTree_Search);
 BENCHMARK(BM_RTree_Search);
+BENCHMARK(BM_UBTree_Search);
 
 //BENCHMARK(BM_BTree_SearchNF);
 BENCHMARK(BM_BPlusTree_SearchNF);
 BENCHMARK(BM_IntervalTree_SearchNF);
 
 // Run the benchmark
-//BENCHMARK_MAIN();
+BENCHMARK_MAIN();
