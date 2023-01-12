@@ -3,7 +3,7 @@ project(Trees)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Trees main.cpp UBTree.h)
+add_executable(Trees main.cpp UBTree.h Utils.cpp BTree.h)
 
 add_subdirectory(benchmark-main)
 include_directories(./include/interval-tree)

@@ -693,6 +693,30 @@ time_unit_gtest/fast:
 	$(MAKE) $(MAKESILENT) -f benchmark-main\test\CMakeFiles\time_unit_gtest.dir\build.make benchmark-main/test/CMakeFiles/time_unit_gtest.dir/build
 .PHONY : time_unit_gtest/fast
 
+Utils.obj: Utils.cpp.obj
+.PHONY : Utils.obj
+
+# target to build an object file
+Utils.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trees.dir\build.make CMakeFiles/Trees.dir/Utils.cpp.obj
+.PHONY : Utils.cpp.obj
+
+Utils.i: Utils.cpp.i
+.PHONY : Utils.i
+
+# target to preprocess a source file
+Utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trees.dir\build.make CMakeFiles/Trees.dir/Utils.cpp.i
+.PHONY : Utils.cpp.i
+
+Utils.s: Utils.cpp.s
+.PHONY : Utils.s
+
+# target to generate assembly for a file
+Utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Trees.dir\build.make CMakeFiles/Trees.dir/Utils.cpp.s
+.PHONY : Utils.cpp.s
+
 main.obj: main.cpp.obj
 .PHONY : main.obj
 
@@ -770,6 +794,9 @@ help:
 	@echo ... user_counters_tabular_test
 	@echo ... user_counters_test
 	@echo ... user_counters_thousands_test
+	@echo ... Utils.obj
+	@echo ... Utils.i
+	@echo ... Utils.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s

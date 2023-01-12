@@ -67,6 +67,10 @@ public:
     bool search(T* data) {
         return bpt->search(get_z(data));
     }
+
+    bool rangeSearch(T* data1, T* data2) {
+        return bpt->rangeSearch(get_z(data1), get_z(data2));
+    }
 };
 
 #endif
